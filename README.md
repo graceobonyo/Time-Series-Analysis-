@@ -1,47 +1,196 @@
-## Air Quality Forecasting using Time Series Machine Learning Models
-### Objective
-The objective of this project assignment is to develop a machine learning model that predicts future air quality levels based on historical air quality data and relevant environmental factors. Students will gain practical experience in time series analysis, feature engineering, model selection, and evaluation for air quality forecasting.
+# Air Quality Forecasting Using Time Series Analysis
 
-A few years ago, China established the Air Quality Index (AQI) based on the level of five pollutants atmospheres, namely sulfur dioxide (SO2), nitrogen dioxide (NO2), particulate matter (PM10), carbon monoxide (CO) and ozone (O3) measured at the monitoring stations in each city. 
+## Introduction
 
-The dataset consists of hourly atmospheric measurements from 12 cities in Beijing, covering the period from March 1st, 2013, to February 28th, 2017. The target variables are PM2.5, PM10, SO2, NO2, CO, and O3, along with independent variables like temperature, pressure, dew point temperature, rainfall, wind speed, and wind direction.
+This project focuses on forecasting PM2.5 air pollution concentrations using time series analysis techniques. Historical air quality and meteorological data from 2013 to 2017 were analyzed to develop predictive models capable of forecasting future PM2.5 levels. Three forecasting approaches, namely ARIMA, SARIMA, and Prophet, were evaluated and compared to determine the most effective model.
 
-### Requirements
-1. [Dataset](https://www.openml.org/search?type=data&status=active&id=42933): You can use the one provided or let your instructor know the alternative you prefer.
+## Objectives
 
-2. Data Preprocessing:
-    - Students should handle any missing values, outliers, or erroneous readings in the dataset to ensure data quality.
-    - Students should consider temporal resolutions (hourly, daily) and choose an appropriate aggregation level for the analysis.
-    - Students should split the dataset into training and testing sets, ensuring a sufficient time duration for each set.
+- Load and preprocess air quality data from an ARFF file.
+- Handle missing values and outliers.
+- Perform exploratory data analysis on PM2.5 concentrations.
+- Conduct stationarity testing using the Augmented Dickey-Fuller (ADF) test.
+- Decompose the PM2.5 time series into trend, seasonal, and residual components.
+- Develop ARIMA, SARIMA, and Prophet forecasting models.
+- Evaluate forecasting performance using RMSE and MAE.
+- Perform hyperparameter tuning on the Prophet model.
+- Analyze model bias and variance.
 
-3. Feature Engineering:
-    - Students should engineer relevant features from the historical air quality data. Examples include lagged variables, moving averages, time-based indicators, and meteorological data like temperature, humidity, wind speed, or atmospheric pressure.
-    - Students should consider the influence of external factors, such as industrial activities, geographical attributes, or seasonal variations, on air quality.
+## Technologies Used
 
-4. Model Selection and Training:
-    - Students should explore and experiment with various time series machine learning models suitable for air quality forecasting, such as ARIMA, SARIMA, Prophet, or LSTM.
-    - Students should train multiple models using the training dataset and tune the model hyperparameters, if applicable.
-    - Students should compare the performance of different models using appropriate evaluation metrics, such as RMSE, MAE, or accuracy measures specific to air quality indices.
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- SciPy
+- Statsmodels
+- Prophet
+- Scikit-learn
 
-5. Model Evaluation and Visualization:
-    - Students should evaluate the performance of the selected model(s) on the testing dataset.
-    - Students should visualize the predicted air quality levels alongside the actual values to assess the accuracy and reliability of their model.
-    - Students should analyze and interpret the model’s performance, discussing its ability to capture pollution patterns, handle seasonality, and make accurate forecasts.
+## Dataset Description
 
-### Bonus Challenge
-- Students can explore advanced topics, such as ensemble methods, hybrid models, or spatial-temporal modeling techniques to incorporate spatial correlations and neighboring air quality stations.
-- Students can investigate the impact of additional data sources, such as satellite imagery, land use information, or real-time sensor data, on air quality forecasting.
-- Students can develop visualizations or interactive dashboards to communicate the forecasted air quality information effectively.
+The dataset contains hourly air quality and meteorological measurements including:
 
-Remember to document your process, explain your decisions, and present your results effectively. Good luck with your project!
+- PM2.5
+- PM10
+- SO2
+- NO2
+- CO
+- O3
+- Temperature (TEMP)
+- Pressure (PRES)
+- Dew Point (DEWP)
+- Rainfall (RAIN)
+- Wind Speed (WSPM)
 
-Important Notes
+The data covers the period from 2013 to 2017.
 
-- Any data pre-processing steps must be presented and justified.
-- All algorithms and parameters used must be indicated.
-- The organization of the text and presentation, clarity of language and ideas are rewarded.
-- Long sequences of poorly formatted results are penalized.
-- The report should also make reference to any source used and make explicit which part of the work was influenced by her.
-- It is important that your code does not depend on an absolute path, so that it can be executed anywhere. computer. This project should be posted in your GitHub repo with the data. You can split your notebooks into 2 or 3 for better readability. 
-- If the notebook contains code that takes a long time to run, it should be included with the option eval=FALSE so that the code is not executed. If the output of your code is needed, you can execute it locally on your computer, save it to a binary file, and load it into your report.
- 
+## Data Preprocessing
+
+### Missing Value Treatment
+
+Missing values represented by "?" were replaced with NaN values and handled through linear interpolation to ensure continuity within the time series.
+
+### Data Type Conversion
+
+All numerical attributes were converted into appropriate numeric data types to facilitate statistical analysis and forecasting.
+
+### Datetime Construction
+
+The year, month, day, and hour variables were merged into a single datetime column, which was subsequently set as the DataFrame index.
+
+### Outlier Detection and Treatment
+
+Outliers were detected using the Interquartile Range (IQR) method. To reduce the influence of extreme observations without removing data points, Winsorization was applied by capping values at the calculated upper and lower bounds.
+
+## Exploratory Data Analysis
+
+### PM2.5 Trend Analysis
+
+The PM2.5 concentration levels fluctuated considerably between 2013 and 2017. Several periods of high pollution were observed alongside cleaner periods. Although substantial variability was present throughout the series, no strong long-term upward or downward trend was detected.
+
+### Correlation Analysis
+
+A correlation heatmap revealed strong positive relationships between PM2.5 and PM10, CO, and NO₂ concentrations. These findings suggest that pollutants likely originate from similar sources such as transportation and industrial activities. Wind speed demonstrated a negative relationship with PM2.5, indicating that stronger winds help disperse atmospheric pollutants.
+
+## Feature Engineering
+
+Several features were generated to improve forecasting performance.
+
+### Lag Features
+
+- PM25_lag_1
+- PM25_lag_24
+- PM25_lag_48
+
+### Moving Average Features
+
+- MA_24
+- MA_72
+
+### Time-Based Features
+
+- Month
+- Day of Week
+- Hour
+
+## Stationarity Testing
+
+The Augmented Dickey-Fuller (ADF) test was used to determine whether the PM2.5 series was stationary.
+
+### Results
+
+- ADF Statistic: -22.03
+- P-value: 0.0000
+
+### Interpretation
+
+The p-value was significantly below the 0.05 significance level, indicating that the null hypothesis of non-stationarity was rejected. Consequently, the PM2.5 series was considered stationary and suitable for time series forecasting.
+
+## Seasonal Decomposition
+
+Seasonal decomposition separated the PM2.5 series into trend, seasonal, and residual components.
+
+The decomposition analysis revealed:
+
+- A general decline in PM2.5 concentrations between 2013 and 2015.
+- Recurring seasonal patterns affecting air quality.
+- Random fluctuations and pollution spikes represented by the residual component.
+
+These findings indicate that PM2.5 concentrations are influenced by both predictable seasonal effects and unpredictable environmental events.
+
+## Forecasting Models
+
+The dataset was split into training and testing sets using an 80:20 ratio.
+
+### ARIMA Model
+
+Configuration:
+
+ARIMA(5,1,2)
+
+Performance:
+
+- RMSE: 57.23
+- MAE: 45.40
+
+The ARIMA model captured the overall pattern of PM2.5 concentrations but experienced difficulty forecasting extreme pollution events.
+
+### SARIMA Model
+
+Configuration:
+
+SARIMA(1,1,1)(1,1,1,12)
+
+Performance:
+
+- RMSE: 58.02
+- MAE: 44.63
+
+The SARIMA model incorporated seasonality and achieved performance comparable to ARIMA.
+
+### Prophet Model
+
+Performance:
+
+- RMSE: 54.76
+- MAE: 41.02
+
+The Prophet model achieved the lowest forecasting errors among all evaluated models. It effectively captured both trend and seasonal patterns within the PM2.5 time series.
+
+## Model Comparison
+
+| Model | RMSE | MAE |
+|--------|------|------|
+| ARIMA | 57.23 | 45.40 |
+| SARIMA | 58.02 | 44.63 |
+| Prophet | 54.76 | 41.02 |
+
+The results indicate that Prophet outperformed both ARIMA and SARIMA, achieving the lowest RMSE and MAE values.
+
+## Hyperparameter Tuning
+
+Prophet hyperparameter tuning was performed using Grid Search to identify the optimal parameter combination.
+
+The following parameters were tuned:
+
+- changepoint_prior_scale
+- seasonality_prior_scale
+- seasonality_mode
+
+The best-performing parameter combination was selected based on the lowest RMSE value and used to train the final forecasting model.
+
+## Actual vs Predicted Analysis
+
+Comparison of actual and predicted PM2.5 values demonstrated that Prophet successfully captured the overall trend and seasonal movement of the series. The predictions were smoother than the observed values and occasionally underestimated extreme pollution spikes. Despite this limitation, the model produced the most reliable forecasts among all evaluated approaches.
+
+#### Bias-Variance Trade-off
+
+The Prophet model achieved a good balance between bias and variance. Although the model exhibited moderate bias by smoothing predictions and underestimating some extreme PM2.5 spikes, it maintained low variance by avoiding overfitting to noise and short-term fluctuations in the data.
+
+This trade-off allowed the model to generalize effectively to unseen observations while maintaining stable forecasting performance. As a result, Prophet was able to capture the underlying trend and seasonal patterns of PM2.5 concentrations more effectively than ARIMA and SARIMA, leading to lower prediction errors.
+
+#### Conclusion
+
+The Prophet model was identified as the most suitable forecasting approach for PM2.5 prediction in this study. Its ability to model trend and seasonality while maintaining relatively low forecasting errors makes it a valuable tool for air quality monitoring, environmental planning, and decision-making.
